@@ -1,207 +1,115 @@
-    - FreeMarker
-    - Validation
-    - MariaDB Driver
-- **MariaDB**
-- **Maven**
+---
+title: Praktikumsprojekt
+tableOfContents: true
+---
 
-
-## Anforderungen als BDD (Gherkin)
-Die folgenden BDD-Features beschreiben das gewünschte Verhalten aus Nutzersicht. Sie sind technologieagnostisch formuliert und können später für UI- oder API-Tests (z. B. mit Cucumber) verwendet werden.
-
-```gherkin
-# language: de
-@fachlich @abteilungen
-Funktionalität: Abteilungen verwalten
-  Um Organisationseinheiten zu pflegen
-  möchte ich Abteilungen anlegen, bearbeiten, löschen und anzeigen
-
-  Hintergrund:
-    Angenommen es existiert die Abteilung "Entwicklung"
-
-  Szenario: Abteilungsliste anzeigen
-    Wenn ich die Abteilungsliste öffne
-    Dann sehe ich die Abteilung "Entwicklung" in der Liste
-
-  Szenario: Abteilung anlegen
-    Wenn ich eine neue Abteilung mit dem Namen "HR" speichere
-    Dann existiert eine Abteilung "HR"
-
-  Szenario: Validierung beim Anlegen (Pflichtfeld Name)
-    Wenn ich eine neue Abteilung ohne Namen speichere
-    Dann erhalte ich eine Fehlermeldung, dass der Name erforderlich ist
-    Und die Abteilung wird nicht angelegt
-
-  Szenario: Abteilung bearbeiten
-    Wenn ich die Abteilung "Entwicklung" in "Engineering" umbenenne
-    Dann existiert eine Abteilung "Engineering"
-    Und die Abteilung "Entwicklung" existiert nicht mehr
-
-  Szenario: Abteilung löschen
-    Wenn ich die Abteilung "Engineering" lösche
-    Dann existiert die Abteilung "Engineering" nicht mehr
-```
-
-```gherkin
-# language: de
-@fachlich @mitarbeiter
-Funktionalität: Mitarbeiter verwalten
-  Um Mitarbeitende im Unternehmen zu pflegen
-  möchte ich Mitarbeitende CRUD-verwenden und einer Abteilung zuordnen
-
-  Hintergrund:
-    Angenommen es existiert die Abteilung "Entwicklung"
-
-  Szenario: Mitarbeiterliste anzeigen
-    Wenn ich die Mitarbeiterliste öffne
-    Dann sehe ich eine Tabelle mit Vorname, Nachname, E-Mail und Abteilung
-
-  Szenario: Mitarbeiter anlegen
-    Wenn ich einen Mitarbeiter mit folgenden Werten speichere
-      | firstName | lastName | email             | department  |
-      | Alice     | Beispiel | alice@example.org | Entwicklung |
-    Dann existiert ein Mitarbeiter "Alice Beispiel" mit E-Mail "alice@example.org" in der Abteilung "Entwicklung"
-
-  Szenario: Validierung beim Anlegen
-    Wenn ich einen Mitarbeiter ohne Nachnamen speichere
-    Dann erhalte ich eine Fehlermeldung, dass der Nachname erforderlich ist
-    Und der Mitarbeiter wird nicht angelegt
-
-  Szenario: E-Mail-Format prüfen (optional)
-    Wenn ich einen Mitarbeiter mit E-Mail "falsch" speichere
-    Dann erhalte ich eine Fehlermeldung zum ungültigen E-Mail-Format
-
-  Szenario: Mitarbeiter bearbeiten
-    Gegeben sei ein Mitarbeiter "Alice Beispiel" in "Entwicklung"
-    Wenn ich die Abteilung des Mitarbeiters auf "Entwicklung" belasse und die E-Mail auf "alice.bsp@example.org" ändere
-    Dann ist die E-Mail des Mitarbeiters "alice.bsp@example.org"
-
-  Szenario: Mitarbeiterdetailseite
-    Gegeben sei ein Mitarbeiter "Alice Beispiel" in "Entwicklung"
-    Wenn ich die Detailseite des Mitarbeiters öffne
-    Dann sehe ich Stammdaten und eine Übersicht der zugeordneten Skills mit Leveln
-
-  Szenario: Mitarbeiter löschen
-    Gegeben sei ein Mitarbeiter "Alice Beispiel"
-    Wenn ich den Mitarbeiter lösche
-    Dann existiert der Mitarbeiter nicht mehr
-```
-
-```gherkin
-# language: de
-@fachlich @skillkategorien
-Funktionalität: Skillkategorien verwalten
-  Um Skills logisch zu gruppieren
-  möchte ich Skillkategorien anlegen, bearbeiten, löschen und anzeigen
-
-  Szenario: Kategorie anlegen
-    Wenn ich eine Skillkategorie "Programmiersprachen" speichere
-    Dann existiert die Skillkategorie "Programmiersprachen"
-
-  Szenario: Validierung Name Pflicht
-    Wenn ich eine Skillkategorie ohne Namen speichere
-    Dann erhalte ich eine Fehlermeldung, dass der Name erforderlich ist
-
-  Szenario: Kategorie bearbeiten und löschen
-    Gegeben sei die Skillkategorie "Programmiersprachen"
-    Wenn ich den Namen auf "Sprachen" ändere
-    Dann existiert die Skillkategorie "Sprachen"
-    Wenn ich die Skillkategorie "Sprachen" lösche
-    Dann existiert sie nicht mehr
-```
-
-```gherkin
-# language: de
-@fachlich @skills
-Funktionalität: Skills verwalten
-  Um erfassbare Fähigkeiten zu pflegen
-  möchte ich Skills in Kategorien anlegen, bearbeiten, löschen und anzeigen
-
-  Hintergrund:
-    Angenommen es existiert die Skillkategorie "Programmiersprachen"
-
-  Szenario: Skill anlegen
-    Wenn ich den Skill "Java" in der Kategorie "Programmiersprachen" speichere
-    Dann existiert der Skill "Java" in der Kategorie "Programmiersprachen"
-
-  Szenario: Validierung Name Pflicht
-    Wenn ich einen Skill ohne Namen speichere
-    Dann erhalte ich eine Fehlermeldung, dass der Name erforderlich ist
-
-  Szenario: Skill bearbeiten und löschen
-    Gegeben sei der Skill "Java" in der Kategorie "Programmiersprachen"
-    Wenn ich den Namen auf "Java SE" ändere
-    Dann existiert der Skill "Java SE"
-    Wenn ich den Skill "Java SE" lösche
-    Dann existiert er nicht mehr
-```
-
-```gherkin
-# language: de
-@fachlich @mitarbeiter_skills
-Funktionalität: Mitarbeiter-Skills und Level verwalten
-  Um den Kenntnisstand abzubilden
-  möchte ich Mitarbeitenden Skills mit einem Level (1–100) zuordnen und pflegen
-
-  Hintergrund:
-    Angenommen es existiert der Mitarbeiter "Alice Beispiel" in der Abteilung "Entwicklung"
-    Und es existiert der Skill "Java" in der Kategorie "Programmiersprachen"
-
-  Szenario: Skill zuordnen
-    Wenn ich dem Mitarbeiter "Alice Beispiel" den Skill "Java" mit Level 65 zuordne
-    Dann hat der Mitarbeiter "Alice Beispiel" den Skill "Java" mit Level 65
-
-  Szenario: Level aktualisieren
-    Gegeben sei der Mitarbeiter "Alice Beispiel" hat den Skill "Java" mit Level 65
-    Wenn ich den Level auf 80 ändere
-    Dann ist der Level des Skills "Java" für "Alice Beispiel" 80
-
-  Szenario: Level-Grenzen validieren
-    Wenn ich dem Mitarbeiter "Alice Beispiel" den Skill "Java" mit Level 0 zuordne
-    Dann erhalte ich eine Fehlermeldung, dass der Level zwischen 1 und 100 liegen muss
-    Und die Änderung wird nicht gespeichert
-
-  Szenario: Doppelte Zuordnung verhindern
-    Gegeben sei der Mitarbeiter "Alice Beispiel" hat den Skill "Java" mit Level 65
-    Wenn ich denselben Skill erneut zuordnen möchte
-    Dann erhalte ich eine Fehlermeldung, dass der Skill bereits zugeordnet ist
-
-  Szenario: Skill-Zuordnung entfernen
-    Gegeben sei der Mitarbeiter "Alice Beispiel" hat den Skill "Java"
-    Wenn ich die Zuordnung entferne
-    Dann hat der Mitarbeiter "Alice Beispiel" den Skill "Java" nicht mehr
-```
-
-```gherkin
-# language: de
-@fachlich @skillmatrix
-Funktionalität: Skillmatrix anzeigen (optional)
-  Um die Fähigkeiten eines Mitarbeiters visuell darzustellen
-  möchte ich eine Skillmatrix als Radar-Chart sehen
-
-  Hintergrund:
-    Angenommen es existiert der Mitarbeiter "Alice Beispiel"
-    Und der Mitarbeiter hat die folgenden Skills
-      | skill | level |
-      | Java  | 80    |
-      | SQL   | 60    |
-      | HTML  | 55    |
-
-  Szenario: Skillmatrix für Mitarbeiter anzeigen
-    Wenn ich die Skillmatrix für "Alice Beispiel" öffne
-    Dann sehe ich ein Radar-Chart mit den Skills und Leveln des Mitarbeiters
-
-  Szenario: Skillmatrix aktualisiert sich bei Leveländerung
-    Gegeben sei die Skillmatrix für "Alice Beispiel" ist geöffnet
-    Wenn ich den Level des Skills "SQL" von 60 auf 70 ändere
-    Dann spiegelt das Radar-Chart den neuen Level 70 für "SQL" wider
-```
-
-Hinweis:
-- Die hier verwendeten Begriffe orientieren sich an den Abschnitten „Funktionale Anforderungen“ und „Wochenplanung“.
-- Die Schritte können für Web-UI-Tests (z. B. Selenium + Cucumber) oder API-Tests (REST) umgesetzt werden.
-- Wo nicht explizit in den Anforderungen definiert (z. B. E-Mail-Validierung), sind sinnvolle Standardvalidierungen als optional gekennzeichnet.
+Dieses Dokument beschreibt die Aufgabenstellung, Anforderungen und die tägliche Planung für das 1-wöchige Softwareentwicklungspraktikum.  
+Ziel ist es, eine einfache Skillmatrix-Anwendung mit **Spring Boot**, **Spring MVC**, **JPA** und **FreeMarker** zu entwickeln. Als Datenbank nutzt du lokal **H2** (einfacher Start), optional später **MariaDB**.
 
 ---
+
+## Projektziel
+Die Praktikantin soll innerhalb einer Woche eine vollständige, funktionierende Webanwendung umsetzen, die es ermöglicht:
+
+- Abteilungen anzulegen und zu verwalten
+- Mitarbeiter anzulegen und ihnen Abteilungen zuzuordnen
+- Skillkategorien und Skills anzulegen
+- Mitarbeitern Skills mit Level (1–100) zuzuweisen
+
+Optional:
+- Eine Skillmatrix als Radar-Chart anzuzeigen
+
+Die Anwendung soll **Server-Side Rendered** sein (kein Angular), basierend auf:
+
+- Spring Boot
+- Spring MVC
+- JPA/Hibernate
+- FreeMarker Templates
+- H2 Datenbank (lokal), optional MariaDB
+
+---
+
+## Anforderungen
+
+### Funktionale Anforderungen (vereinfacht)
+1. **Abteilungen**: CRUD und Liste.
+2. **Mitarbeitende**: CRUD, gehören zu genau einer Abteilung, Liste.
+3. **Skillkategorien**: CRUD und Liste.
+4. **Skills**: CRUD, gehören zu genau einer Skillkategorie.
+5. **Mitarbeitende ↔ Skills**: Skills mit Level (1–100) zuordnen und ändern; Zuordnung entfernen.
+
+Optional:
+- Eine Skillmatrix (Radar‑Chart) pro Mitarbeiter: Werte aus den zugeordneten Skills visualisieren.
+
+
+## Datenmodell (Mermaid UML)
+Das folgende UML-Klassendiagramm zeigt die wichtigsten Entitäten und Relationen der Anwendung.
+
+```mermaid
+classDiagram
+  direction LR
+
+  class Department {
+    +Long id
+    +String name
+    +String description
+  }
+
+  class Employee {
+    +Long id
+    +String firstName
+    +String lastName
+    +String email
+    +boolean active
+  }
+
+  class SkillCategory {
+    +Long id
+    +String name
+    +String description
+  }
+
+  class Skill {
+    +Long id
+    +String name
+    +String description
+  }
+
+  class EmployeeSkill {
+    +Long id
+    +int level  // 1..100
+    +LocalDateTime lastUpdate
+  }
+
+  Employee "0..*" --> "1" Department : department
+  Skill "0..*" --> "1" SkillCategory : skillCategory
+  EmployeeSkill "0..*" --> "1" Employee : employee
+  EmployeeSkill "0..*" --> "1" Skill : skill
+```
+
+Hinweise:
+- `EmployeeSkill` modelliert die m:n‑Beziehung zwischen Mitarbeitenden und Skills und speichert zusätzlich das Level (1–100) sowie einen Zeitstempel der letzten Änderung.
+- Die Kardinalitäten sind so gewählt, dass sie die JPA‑Beziehungen widerspiegeln (z. B. `@ManyToOne` von `Employee` zu `Department`).
+
+
+## Technische Anforderungen (vereinfacht)
+
+### Technologien
+- **Java 17+**
+- **Spring Boot**
+    - Spring Web (MVC)
+    - Spring Data JPA
+    - FreeMarker
+    - Validation
+- **H2** als Entwicklungs‑DB (In‑Memory)
+- **Maven**
+
+Optional für später:
+- MariaDB + Treiber (Prod/realistische Umgebung)
+
+
+## Hinweis
+Die Anforderungen sind bewusst kompakt gehalten. Du kannst sie im Projektverlauf konkretisieren (z. B. Validierungsregeln, Pflichtfelder). Eine spätere Erweiterung um automatisierte UI/API‑Tests ist möglich, aber nicht Teil dieser Woche.
 
 # Wochenplanung
 
@@ -322,48 +230,3 @@ Die Praktikantin hat dabei den kompletten Entwicklungsprozess kennengelernt:
 - Template-Rendering
 - Datenbankanbindung
 - Debugging
-
-## Architekturübersicht (Mermaid)
-Das folgende Diagramm zeigt die grobe Architektur der Anwendung mit ihren Hauptkomponenten und deren Interaktionen.
-
-```mermaid
-flowchart LR
-  %% Orientierung
-  %% Client -> Server (Spring Boot) -> Datenbank (MariaDB) unter Docker
-
-  subgraph client[Client]
-    BROWSER[Web-Browser]
-  end
-
-  subgraph app[Spring Boot Anwendung]
-    direction TB
-
-    CONTROLLERS["Spring MVC Controller\n(SkillMatrixController, DepartmentController, ...)" ]
-    VIEWS["FreeMarker Templates (*.ftl)\n(Server-Side Rendering)"]
-    SERVICES["Service-Schicht (Fachlogik)"]
-    REPOS["Spring Data JPA Repositories"]
-    ENTITIES["JPA Entities\n(Employee, Department, Skill, SkillCategory, EmployeeSkill)"]
-  end
-
-  subgraph infra[Infrastruktur]
-    direction TB
-    DB[(MariaDB\nPort 3306)]
-    DOCKER[[docker-compose]]
-  end
-
-  %% Datenfluss / Abhängigkeiten
-  BROWSER -- "HTTP (GET/POST) :8080" --> CONTROLLERS
-  CONTROLLERS --> VIEWS
-  CONTROLLERS --> SERVICES
-  SERVICES --> REPOS
-  REPOS --> DB
-
-  %% Bereitstellung
-  DOCKER -. startete Dienste .-> app
-  DOCKER -. startete Dienste .-> DB
-```
-
-Hinweise:
-- Die Views werden serverseitig mit FreeMarker gerendert und als HTML an den Browser ausgeliefert.
-- Persistenz erfolgt via Spring Data JPA gegen MariaDB (in `docker-compose.yml`).
-- Ports: Anwendung typischerweise auf `8080`, Datenbank auf `3306`.
