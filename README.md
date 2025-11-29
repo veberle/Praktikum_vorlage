@@ -1,4 +1,6 @@
-# Dieses Dokument beschreibt die Aufgabenstellung, Anforderungen und die tägliche Planung für das 1-wöchige Softwareentwicklungspraktikum.  
+# Praktikum
+
+Dieses Dokument beschreibt die Aufgabenstellung, Anforderungen und die tägliche Planung für das 1-wöchige Softwareentwicklungspraktikum.  
 Ziel ist es, eine einfache Skillmatrix-Anwendung mit **Spring Boot**, **Spring MVC**, **JPA** und **FreeMarker** zu entwickeln. Als Datenbank nutzt du lokal **H2** (einfacher Start), optional später **MariaDB**.
 
 ---
